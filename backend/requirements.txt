@@ -9,3 +9,5 @@ torch
 python-dotenv
 mistralai
 duckduckgo-search
+langchain_community
+langchain

@@ -4,7 +4,8 @@ from backend.services.stock_quotes import StockQuoteService
 from langchain.agents import Tool, initialize_agent
 from langchain.memory import ConversationBufferMemory
 from dotenv import load_dotenv
-from langchain.utilities import DuckDuckGoSearchAPIWrapper
+from langchain_community.utilities import DuckDuckGoSearchAPIWrapper
+
 
 load_dotenv()
 
