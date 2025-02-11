@@ -20,12 +20,57 @@
       color: #fff;
       height: 100vh;
       display: flex;
+      flex-direction: column;
+    }
+
+    /* Стиль для модального окна ввода API-ключа */
+    #apiKeyModal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(21, 21, 23, 0.95);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    #apiKeyModal .modal-content {
+      background-color: #2B2C2E;
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    #apiKeyModal input {
+      width: 100%;
+      padding: 1rem;
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 4px;
+    }
+    #apiKeyModal button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      background-color: #414553;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+    }
+    #apiKeyModal button:hover {
+      background-color: #5c5f68;
     }
 
     .chat-container {
       flex: 1;
       display: flex;
       flex-direction: column;
+      /* изначально скрываем чат, пока не введут API-ключ */
+      display: none;
     }
 
     .chat-header {
@@ -118,6 +163,15 @@
   </style>
 </head>
 <body>
+  <!-- Модальное окно для ввода API-ключа -->
+  <div id="apiKeyModal">
+    <div class="modal-content">
+      <h2>Введите ваш API ключ</h2>
+      <input type="text" id="apiKeyInput" placeholder="Ваш API ключ" />
+      <button id="apiKeySubmit">Начать чат</button>
+    </div>
+  </div>
+
   <!-- Chat Area -->
   <div class="chat-container">
     <div class="chat-header">
@@ -145,24 +199,40 @@
     // Инициализация Lucide-иконок
     lucide.createIcons();
 
+    let userApiKey = ''; // переменная для хранения введённого API-ключа
+
+    const apiKeyModal = document.getElementById('apiKeyModal');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+    const apiKeySubmit = document.getElementById('apiKeySubmit');
+    const chatContainer = document.querySelector('.chat-container');
+
+    apiKeySubmit.addEventListener('click', () => {
+      const key = apiKeyInput.value.trim();
+      if (key) {
+        userApiKey = key;
+        // Скрываем модальное окно и показываем чат
+        apiKeyModal.style.display = 'none';
+        chatContainer.style.display = 'flex';
+      } else {
+        alert("Пожалуйста, введите API ключ");
+      }
+    });
+
     const messageInput = document.getElementById('messageInput');
     const sendButton = document.getElementById('sendButton');
     const messagesContainer = document.getElementById('messagesContainer');
 
-    // Функция для добавления сообщения в чат (не анимированное сообщение)
+    // Функция для добавления сообщения в чат (без анимации)
     function addMessage(content, isUser = false) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${isUser ? 'user' : ''}`;
-      messageDiv.innerHTML = `
-        <div class="message-content">${content}</div>
-      `;
+      messageDiv.innerHTML = `<div class="message-content">${content}</div>`;
       messagesContainer.appendChild(messageDiv);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
     // Функция для анимации вывода ответа побуквенно
     function animateResponse(text) {
-      // Создаем контейнер для ответа бота
       const messageDiv = document.createElement('div');
       messageDiv.className = "message";
       const messageContent = document.createElement('div');
@@ -172,7 +242,6 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
       let index = 0;
-      // Интервал 50 мс на букву
       const interval = setInterval(() => {
         if (index < text.length) {
           messageContent.innerHTML += text[index];
@@ -188,17 +257,14 @@
     function handleSendMessage() {
       const content = messageInput.value.trim();
       if (content) {
-        // Добавляем сообщение пользователя
         addMessage(content, true);
         messageInput.value = '';
 
-        // Отправляем запрос на backend (например, FastAPI по эндпоинту /api/chat)
+        // Отправляем запрос на backend с API-ключом
         fetch('/api/chat', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ query: content })
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: content, api_key: userApiKey })
         })
           .then(response => {
             if (!response.ok) {
@@ -207,7 +273,6 @@
             return response.json();
           })
           .then(data => {
-            // Ожидаем, что сервер вернет JSON с полем response
             const responseText = data.response;
             animateResponse(responseText);
           })
