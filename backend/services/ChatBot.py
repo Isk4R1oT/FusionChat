@@ -1,0 +1,119 @@
+import os
+from backend.services.llm import MistralLLM
+from backend.services.stock_quotes import StockQuoteService
+from langchain.agents import Tool, initialize_agent
+from langchain.memory import ConversationBufferMemory
+from dotenv import load_dotenv
+from langchain.utilities import DuckDuckGoSearchAPIWrapper
+
+load_dotenv()
+
+def calculator(query: str) -> str:
+    """
+    Простой калькулятор для вычисления арифметических выражений.
+    ВНИМАНИЕ: функция eval используется в ограниченном контексте для безопасности.
+    """
+    try:
+        # Ограничиваем доступ к встроенным функциям
+        result = eval(query, {"__builtins__": {}}, {})
+        return str(result)
+    except Exception as e:
+        return f"Ошибка при вычислении: {e}"
+
+# Инициализируем клиента для поиска через DuckDuckGo
+search_client = DuckDuckGoSearchAPIWrapper()
+
+def search_dds(query: str) -> str:
+    """
+    Функция для поиска информации через DuckDuckGo.
+    """
+    try:
+        return search_client.run(query)
+    except Exception as e:
+        return f"Ошибка при поиске: {e}"
+
+class ChatBot:
+    def __init__(self):
+        self.stock_service = StockQuoteService()
+
+        # Получаем API ключ
+        api_key = os.getenv("MISTRAL_API_KEY")
+        if not api_key:
+            raise ValueError("Переменная окружения MISTRAL_API_KEY не установлена")
+
+        # Обновлённый системный prompt для живого диалога
+        system_prompt = """
+        Ты — опытный, дружелюбный инвестиционный консультант. 
+        Твои ответы должны быть подробными, понятными и наполненными аналитикой, прогнозами и сравнительным анализом. 
+        Объясняй сложные концепции простым языком и используй живой, разговорный стиль. 
+        Если необходимо, задавай уточняющие вопросы для лучшего понимания запроса.
+        """
+
+        # Создаем LLM-объект с нужными параметрами
+        self.llm = MistralLLM(
+            api_key=api_key,
+            temperature=0.6,  # Можно повысить для большей креативности (например, до 0.8-0.9)
+            system_prompt=system_prompt
+        )
+
+        # Инструмент для получения котировки с аналитическими комментариями
+        stock_quote_tool = Tool(
+            name="Stock Quote Lookup",
+            func=self.stock_service.get_stock_quote,
+            description=(
+                "Используй этот инструмент для получения текущей котировки акции по заданному тикеру. "
+                "При необходимости, добавь свои комментарии и аналитические замечания о движении цены."
+            )
+        )
+
+        # Инструмент для получения новостей с аналитикой
+        stock_news_tool = Tool(
+            name="Stock News Lookup",
+            func=self.stock_service.get_stock_news,
+            description=(
+                "Используй этот инструмент для получения последних новостей, связанных с заданным тикером. "
+                "Если необходимо, предоставь свой анализ и комментарии к новостям."
+            )
+        )
+
+        # Инструмент для получения общей информации с возможностью сравнения
+        stock_info_tool = Tool(
+            name="Stock Info Lookup",
+            func=self.stock_service.get_stock_info,
+            description=(
+                "Используй этот инструмент для получения общей информации о компании по заданному тикеру. "
+                "Если уместно, сравни компанию с другими или добавь аналитические комментарии."
+            )
+        )
+
+        # Инструмент калькулятора для вычисления математических выражений
+        calculator_tool = Tool(
+            name="Calculator",
+            func=calculator,
+            description="Используй этот инструмент для вычисления математических выражений. Например: '2+2*3'."
+        )
+
+        # Инструмент поисковика, использующего DuckDuckGo для поиска информации
+        search_dds_tool = Tool(
+            name="DuckDuckGo Search",
+            func=search_dds,
+            description="Используй этот инструмент для поиска информации в интернете по заданному запросу. Например: 'последние новости о Tesla'."
+        )
+
+        # Инициализация агента с инструментами и памятью диалога
+        self.agent = initialize_agent(
+            tools=[
+                stock_quote_tool,
+                stock_news_tool,
+                stock_info_tool,
+                calculator_tool,
+                search_dds_tool
+            ],
+            llm=self.llm,
+            agent="chat-conversational-react-description",  # Можно экспериментировать с другими типами агентов
+            memory=ConversationBufferMemory(memory_key="chat_history", return_messages=True),
+            verbose=True
+        )
+
+    def process_query(self, query: str) -> str:
+        return self.agent.run(input=query)
