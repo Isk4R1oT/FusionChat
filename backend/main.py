@@ -15,15 +15,7 @@ app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 # Обслуживаем index.html из корневой директории
 @app.get("/", response_class=FileResponse)
 async def read_index():
-    index_path = Path("index.html")
+    index_path = Path("frontend/templates/index.html")
     return FileResponse(index_path)
 
-from fastapi.middleware.cors import CORSMiddleware
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Разрешить все домены (для теста)
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
