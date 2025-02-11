@@ -1,13 +1,13 @@
 import subprocess
 import os
 
-# Путь к основному файлу FastAPI
-FASTAPI_MODULE = "backend.main:app"  # Укажите правильный путь к вашему приложению
 
-# Настройки сервера
+FASTAPI_MODULE = "backend.main:app"
+
+
 FASTAPI_HOST = "0.0.0.0"
 FASTAPI_PORT = 8000
-FASTAPI_WORKERS = 4  # Количество воркеров
+FASTAPI_WORKERS = 4
 
 def main():
     try:
@@ -23,7 +23,7 @@ def main():
             env=os.environ
         )
 
-        fastapi_process.wait()  # Ожидаем завершения процесса
+        fastapi_process.wait()
 
     except KeyboardInterrupt:
         print("Остановка FastAPI сервера...")

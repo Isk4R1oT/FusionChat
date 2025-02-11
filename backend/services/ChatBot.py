@@ -12,7 +12,6 @@ load_dotenv()
 def calculator(query: str) -> str:
     """
     Простой калькулятор для вычисления математических выражений.
-    ВНИМАНИЕ: функция eval используется в ограниченном контексте.
     """
     try:
         result = eval(query, {"__builtins__": {}}, {})
@@ -36,7 +35,7 @@ def search_dds(query: str) -> str:
 
 class ChatBot:
     def __init__(self, api_key: str = None):
-        # Если API ключ передан, используем его, иначе пытаемся взять из переменных окружения
+
         if api_key is None:
             api_key = os.getenv("MISTRAL_API_KEY")
         if not api_key:
@@ -44,7 +43,6 @@ class ChatBot:
 
         self.stock_service = StockQuoteService()
 
-        # Обновлённый системный prompt для живого диалога
         system_prompt = """
         Ты — опытный, дружелюбный инвестиционный консультант. 
         Твои ответы должны быть подробными, понятными и наполненными аналитикой, прогнозами и сравнительным анализом. 

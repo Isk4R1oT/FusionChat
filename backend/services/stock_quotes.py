@@ -18,9 +18,9 @@ class StockQuoteService:
     def get_stock_news(self, ticker: str, max_articles: int = 3) -> str:
         try:
             stock = yf.Ticker(ticker)
-            # Используем метод get_news согласно документации
+
             news_items = stock.get_news()
-            time.sleep(1)  # задержка между запросами
+            time.sleep(1)
 
             if not news_items:
                 return f"Нет последних новостей для {ticker}."
@@ -33,7 +33,7 @@ class StockQuoteService:
         try:
             stock = yf.Ticker(ticker)
             info = stock.info
-            time.sleep(1)  # задержка между запросами
+            time.sleep(1)
 
             if not info:
                 return f"Нет информации по тикеру {ticker}."

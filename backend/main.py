@@ -8,10 +8,10 @@ app = FastAPI()
 
 app.include_router(router, prefix='/api')
 
-# Монтируем папку static для раздачи всех статических файлов
+
 app.mount("/frontend/static", StaticFiles(directory="frontend/static"), name="static")
 
-# Определяем маршрут для отображения главной страницы (index.html)
+
 @app.get("/", response_class=HTMLResponse)
 async def read_index():
     index_path = Path("frontend/static/index.html")

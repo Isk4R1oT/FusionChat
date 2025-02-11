@@ -7,7 +7,7 @@ router = APIRouter()
 @router.post('/chat')
 async def chat_endpoint(request: QueryRequest):
     try:
-        # Создаём экземпляр ChatBot с API ключом, переданным от пользователя
+
         chat_bot = ChatBot(api_key=request.api_key)
         response = chat_bot.process_query(request.query)
         return {'response': response}

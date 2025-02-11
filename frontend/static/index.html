@@ -196,10 +196,9 @@
 
   <script src="https://unpkg.com/lucide@latest"></script>
   <script>
-    // Инициализация Lucide-иконок
     lucide.createIcons();
 
-    let userApiKey = ''; // переменная для хранения введённого API-ключа
+    let userApiKey = '';
 
     const apiKeyModal = document.getElementById('apiKeyModal');
     const apiKeyInput = document.getElementById('apiKeyInput');
@@ -253,14 +252,13 @@
       }, 50);
     }
 
-    // Функция для обработки отправки сообщения
+
     function handleSendMessage() {
       const content = messageInput.value.trim();
       if (content) {
         addMessage(content, true);
         messageInput.value = '';
 
-        // Отправляем запрос на backend с API-ключом
         fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
