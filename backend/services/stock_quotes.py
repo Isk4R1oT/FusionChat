@@ -7,7 +7,7 @@ class StockQuoteService:
         try:
             stock = yf.Ticker(ticker)
             data = stock.history(period="1d")
-            time.sleep(1)  # задержка в 1 секунду
+            time.sleep(1)
             if data.empty:
                 return f"Нет данных по тикеру {ticker}."
             price = data['Close'].iloc[-1]
