@@ -19,9 +19,6 @@ class MistralLLM(LLM):
         self._client = Mistral(api_key=api_key)
 
     def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
-        """
-        Основной метод для генерации текста. Принимает строку prompt и возвращает ответ модели.
-        """
 
         messages = [{"role": "user", "content": prompt}]
 

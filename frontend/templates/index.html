@@ -23,7 +23,6 @@
       flex-direction: column;
     }
 
-    /* Стиль для модального окна ввода API-ключа */
     #apiKeyModal {
       position: fixed;
       top: 0;
@@ -69,7 +68,6 @@
       flex: 1;
       display: flex;
       flex-direction: column;
-      /* изначально скрываем чат, пока не введут API-ключ */
       display: none;
     }
 
@@ -143,7 +141,6 @@
       background-color: #414553;
     }
 
-    /* Адаптация под мобильные устройства */
     @media (max-width: 768px) {
       .chat-header,
       .messages-container,
@@ -163,7 +160,6 @@
   </style>
 </head>
 <body>
-  <!-- Модальное окно для ввода API-ключа -->
   <div id="apiKeyModal">
     <div class="modal-content">
       <h2>Введите ваш API ключ</h2>
@@ -172,7 +168,6 @@
     </div>
   </div>
 
-  <!-- Chat Area -->
   <div class="chat-container">
     <div class="chat-header">
       <h2>Stock and News Assistant</h2>
@@ -209,7 +204,6 @@
       const key = apiKeyInput.value.trim();
       if (key) {
         userApiKey = key;
-        // Скрываем модальное окно и показываем чат
         apiKeyModal.style.display = 'none';
         chatContainer.style.display = 'flex';
       } else {
@@ -221,7 +215,6 @@
     const sendButton = document.getElementById('sendButton');
     const messagesContainer = document.getElementById('messagesContainer');
 
-    // Функция для добавления сообщения в чат (без анимации)
     function addMessage(content, isUser = false) {
       const messageDiv = document.createElement('div');
       messageDiv.className = `message ${isUser ? 'user' : ''}`;
@@ -230,7 +223,6 @@
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
 
-    // Функция для анимации вывода ответа побуквенно
     function animateResponse(text) {
       const messageDiv = document.createElement('div');
       messageDiv.className = "message";

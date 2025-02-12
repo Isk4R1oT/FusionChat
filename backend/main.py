@@ -12,7 +12,6 @@ app.include_router(router, prefix='/api')
 
 app.mount("/static", StaticFiles(directory="frontend/static"), name="static")
 
-# Обслуживаем index.html из корневой директории
 @app.get("/", response_class=FileResponse)
 async def read_index():
     index_path = Path("frontend/templates/index.html")
